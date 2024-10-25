@@ -65,7 +65,7 @@ Follow these steps to set up and run the project:
 
 ### Demo Video Link
 
- [Video Link ](https://www.loom.com/share3c80678750e148a78e0d8016b281ac19?sid=480ca59b-bf06-4c26-848e-b8552fe43a54)
+ [Video Link ](https://www.loom.com/share/3c80678750e148a78e0d8016b281ac19?sid=480ca59b-bf06-4c26-848e-b8552fe43a54)
 
 
 
