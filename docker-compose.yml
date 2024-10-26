@@ -3,23 +3,21 @@ version: '3.8'
 services:
   app:
     build: .
-    ports:
-      - "7860:7860"
     environment:
       - QDRANT_HOST=localhost  # Use localhost if using host mode
       - QDRANT_PORT=6333
+    ports:
+      - "7860:7860"
     network_mode: "host" 
     depends_on:
       - qdrant
 
   qdrant:
     image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-      - "6334:6334"
     volumes:
       - qdrant_storage:/qdrant/storage
-    network_mode: "host"
+    ports:
+      - "6333:6333"
 
 volumes:
   qdrant_storage:
