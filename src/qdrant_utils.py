@@ -3,7 +3,7 @@ import time
 from qdrant_client.models import Distance, VectorParams, PointStruct, FilterSelector
 
 class QdrantWrapper:
-    def __init__(self, collection_name="threadmon-reports-ioc"):
+    def __init__(self, collection_name="threadmon-ioc"):
         self.host = "localhost"
         self.port = 6333
         self.collection_name = collection_name
@@ -17,6 +17,9 @@ class QdrantWrapper:
                 collection_name=self.collection_name,
                 vectors_config=VectorParams(size=384, distance=Distance.COSINE),
             )
+            print("Collection is Created")
+        else:
+            print("Collection already exists")
                 
     def clear_collection(self):
         """
