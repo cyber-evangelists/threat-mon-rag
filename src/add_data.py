@@ -7,9 +7,6 @@ def main():
 
 
     qdrant_client = QdrantWrapper(Config.COLLECTION_NAME)
-    qdrant_client._create_collection_if_not_exists()
-
-
     data_directory = "../data/ThreatMon-Reports-IOC-main"
 
     try:
