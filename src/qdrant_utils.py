@@ -8,8 +8,6 @@ class QdrantWrapper:
         self.port = 6333
         self.collection_name = collection_name
         self.client = QdrantClient(self.host, port=self.port)
-        self.collection_name = collection_name
-        self._establish_connection()
         self._create_collection_if_not_exists()
 
     def _create_collection_if_not_exists(self):
@@ -19,29 +17,7 @@ class QdrantWrapper:
                 collection_name=self.collection_name,
                 vectors_config=VectorParams(size=384, distance=Distance.COSINE),
             )
-
-    def _establish_connection(self, max_retries: int = 3, retry_delay: int = 3 ) -> None:
-
-        for attempt in range(max_retries):
-            try:
-                self.client = QdrantClient(self.host, port=self.port)
-                if self._test_connection():
-                    print(f"Successfully connected to Qdrant at {self.host}:{self.port}")
-                    return
-                else:
-                    raise ConnectionError("Connection test failed")
-            except Exception as e:
-                if attempt < max_retries - 1:
-                    print(f"Connection attempt {attempt + 1} failed: {str(e)}")
-                    print(f"Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)
-                else:
-                    raise ConnectionError(
-                        f"Failed to connect to Qdrant after {max_retries} attempts: {str(e)}"
-                    )
                 
-
-
     def clear_collection(self):
         """
         Deletes all vectors/points from the collection while keeping the collection structure.
