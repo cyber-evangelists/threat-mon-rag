@@ -6,12 +6,11 @@ services:
     ports:
       - "7860:7860"
     environment:
-      - QDRANT_HOST=qdrant
+      - QDRANT_HOST=localhost  # Use localhost if using host mode
       - QDRANT_PORT=6333
+    network_mode: "host" 
     depends_on:
       - qdrant
-    networks:
-      - app-network
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -20,12 +19,7 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_storage:/qdrant/storage
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
+    network_mode: "host"
 
 volumes:
   qdrant_storage:
