@@ -21,47 +21,37 @@ Follow these steps to set up and run the project:
 3. Download data from [this site](https://github.com/ThreatMon/ThreatMon-Reports-IOC) and add that folder into the same repository
    
 
-4. Create a virtual environment:
+4. Make sure that the docker is installed on your system:
    ```
-   python -m venv venv
+   docker --version
    ```
-
-5. Activate the virtual environment:
-   - On Windows:
-     ```
-     venv\Scripts\activate
-     ```
-   - On macOS and Linux:
-     ```
-     source venv/bin/activate
-     ```
-
-6. Install the required packages:
+   If docker is not installed, run the following command:
    ```
-   pip install -r requirements.txt
+   sudo apt install docker
    ```
 
-7. Set up Qdrant:
-   a. Pull the Qdrant Docker image:
-      ```
-      docker pull qdrant/qdrant
-      ```
-   b. Run the Qdrant server:
-      ```
-      docker run -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant:v0.10.1
-      ```
+5. Set up Qdrant:
+   Pull the Qdrant Docker image:
+   ```
+   docker pull qdrant/qdrant
+   ```
 
-8. Add the data to the qdrant vector database
+6. Build the docker environment::
+   ```
+   docker compose up
+   ```
+
+7. Add the data to the qdrant vector database
    ```
    python src/add_data.py
    ```
 
-9. Run the graio app:
+8. Access the graio app by pasting this URL:
    ```
-   python app.py
+   http://localhost:7860/
    ```
 
-10. Enter Query and click on Search button, and the response will be shown below
+9. Enter Query and click on Search button, and the response will be shown below
 
 ### Demo Video Link
 
