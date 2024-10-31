@@ -2,6 +2,7 @@ from typing import Generator, Any
 
 from groq import Groq
 from groq.types.chat import ChatCompletion
+from loguru import logger
 
 from src.config.config import Config
 
@@ -13,6 +14,7 @@ class GroqWrapper:
         self,
         model_name: str = Config.GROQ_MODEL_NAME,
         api_key: str = Config.GROQ_API_KEY
+        
     ) -> None:
         """
         Initialize the GroqWrapper with model configuration.
