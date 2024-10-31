@@ -1,8 +1,10 @@
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
+from loguru import logger
+
+
 import asyncio
 from typing import Dict, Any, List, Optional
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from loguru import logger
 
 from src.llm.groqwrapper import GroqWrapper
 from src.embedder.embedder import EmbeddingWrapper
@@ -19,6 +21,7 @@ groq_client = GroqWrapper()
 embedding_client = EmbeddingWrapper()
 qdrant_client = QdrantWrapper()
 file_processor = FileProcessor()
+
 
 # Create the connection manager instance
 connection_manager = ConnectionManager(max_connections=Config.MAX_CONNECTIONS)
@@ -64,7 +67,7 @@ async def handle_search(websocket: WebSocket, query: str) -> None:
         # Rerank documents
         logger.info("Reranking documents")
         reranked_docs = rerank_docs(query, top_5_results)
-        reranked_top_5_list = [item['content'] for item in reranked_docs]
+        reranked_top_5_list = [item['content'][:1000] for item in reranked_docs]
         logger.info("Documents reranked")
 
         # Use top 2 documents as context
@@ -73,7 +76,7 @@ async def handle_search(websocket: WebSocket, query: str) -> None:
 
         # Generate response using Groq
         logger.info("Generating response from Groq")
-        logger.info(query)
+        # logger.info(processed_query)
         response = groq_client.get_response(processed_query)
 
         await websocket.send_json({
@@ -161,4 +164,5 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
     finally:
-        connections.pop(websocket, None)
+        pass
+        
