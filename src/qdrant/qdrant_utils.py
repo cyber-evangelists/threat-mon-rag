@@ -152,6 +152,7 @@ class QdrantWrapper:
                     "Please ingest data first."
                 )
 
+
             # Perform search if collection has data
             search_result = self.client.search(
                 collection_name=self.collection_name,
