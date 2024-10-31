@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project implements a Retrieval-Augmented Generation (RAG) based system where users ask question related to the ThreatMon-Reports-IOC and it will response to the query
+This project implements a Retrieval-Augmented Generation (RAG) based system where users ask question related to the ThreatMon-Reports-IOC and it will response to the query. This project is completed using Web Sockets Fast API.
 
 ## Setting Up
 
@@ -13,15 +13,12 @@ Follow these steps to set up and run the project:
    git clone https://github.com/cyber-evangelists/threat-mon-rag
    ```
 
-2. Navigate to the project directory:
+2. Navigate to the project root directory:
    ```
-   cd threat-mon-rag
+   threat-mon-rag
    ```
 
-3. Download data from [this site](https://github.com/ThreatMon/ThreatMon-Reports-IOC) and add that folder into the same repository
-   
-
-4. Make sure that the docker is installed on your system:
+3. Make sure that the docker is installed on your system:
    ```
    docker --version
    ```
@@ -30,32 +27,27 @@ Follow these steps to set up and run the project:
    sudo apt install docker
    ```
 
-5. Set up Qdrant:
-   Pull the Qdrant Docker image:
+
+4. In the same directory, create a file name ```.env``` and add following API key
    ```
-   docker pull qdrant/qdrant
+   GROQ_API_KEY=your_api_key
+   ```
+   replace your_api_key with groq API key
+
+
+5. Build the docker environment::
+   ```
+   docker compose up --build
    ```
 
-6. Build the docker environment::
-   ```
-   docker compose up
-   ```
-
-7. Add the data to the qdrant vector database
-   ```
-   python src/add_data.py
-   ```
-
-8. Access the graio app by pasting this URL:
+6. Access the graio app by pasting this URL:
    ```
    http://localhost:7860/
    ```
 
-9. Enter Query and click on Search button, and the response will be shown below
+7. There is button ```Ingest data```, click on this button to first ingest data into qdrant vector database. Then Enter Query and click on Search button, and the response will be shown below.
 
-### Demo Video Link
 
- [Video Link ](https://www.loom.com/share/3c80678750e148a78e0d8016b281ac19?sid=480ca59b-bf06-4c26-848e-b8552fe43a54)
 
 
 

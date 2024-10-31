@@ -1,23 +1,43 @@
-version: '3.8'
+
+networks:
+  rag-network:
+    driver: bridge
 
 services:
-  app:
-    build: .
-    environment:
-      - QDRANT_HOST=localhost  # Use localhost if using host mode
-      - QDRANT_PORT=6333
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
     ports:
-      - "7860:7860"
-    network_mode: "host" 
-    depends_on:
-      - qdrant
+      - "8000:8000"
+    networks:
+      - rag-network
+    hostname: rag-server
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    networks:
+      - rag-network
+    ports:
+      - "7860:7860"  
+    environment:
+      - SERVER_HOST=rag-server
+      - SERVER_PORT=8000
 
   qdrant:
-    image: qdrant/qdrant:latest
-    volumes:
-      - qdrant_storage:/qdrant/storage
+    image: qdrant/qdrant:v0.10.1
     ports:
       - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    networks:
+      - rag-network
+    hostname: qdrant
+
 
 volumes:
   qdrant_storage:
+    driver: local
