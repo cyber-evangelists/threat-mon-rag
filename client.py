@@ -16,7 +16,7 @@ class ChatbotUI:
     def __init__(self):
         """Initialize the ChatbotUI with configuration settings."""
         self.max_history = Config.MAX_CHAT_HISTORY  # Maximum number of messages to keep
-        self.websocket: Optional[websockets.WebSocketClientProtocol] = None
+        self.websocket = None
 
     def clear_chat(self) -> Optional[List[Tuple[str, str]]]:
         """
@@ -26,6 +26,25 @@ class ChatbotUI:
             Optional[List[Tuple[str, str]]]: None to clear the chat history.
         """
         return None
+
+
+    async def connect(self):
+        try:
+            uri = Config.WEBSOCKET_URI
+            if not uri.startswith(('ws://', 'wss://')):
+                logger.error("Invalid WebSocket URI format")
+                return
+            self.websocket = await websockets.connect(
+                uri,
+                ping_interval=20,
+                ping_timeout=60,
+                max_size=10_485_760
+            )
+            
+        except Exception as e:
+            logger.error(f"Connection error: {e}")
+
+
 
     async def handle_request(
         self, action: str, payload: dict
@@ -41,36 +60,40 @@ class ChatbotUI:
             Tuple[str, List[Tuple[str, str]]]: A tuple containing the response message
             and updated chat history.
         """
+
+        query = payload["query"]
+        if not query.strip():
+            logger.error(f"No input provided")
+            return "", [(payload.get("query", ""), "No query Entered")]
+
+
         uri = Config.WEBSOCKET_URI
 
         if not uri.startswith(('ws://', 'wss://')):
             logger.error(f"Invalid WebSocket URI format: {uri}")
             return "", [(payload.get("query", ""), "Invalid WebSocket URI configuration")]
 
+        if self.websocket is None or self.websocket.closed:
+            await self.connect()
+
+
+
         try:
-            async with websockets.connect(
-                uri,
-                ping_interval=20,    # Enable built-in ping/pong
-                ping_timeout=60,     # Timeout for ping/pong
-                close_timeout=60,    # Timeout for close operation
-                max_size=10_485_760  # 10MB max message size
-            ) as websocket:
-                self.websocket = websocket
+        
+            # Set up connection timeout
+            response_future = asyncio.create_task(
+                self._handle_websocket_communication(action, payload)
+            )
 
-                # Set up connection timeout
-                response_future = asyncio.create_task(
-                    self._handle_websocket_communication(action, payload)
+            try:
+                result = await asyncio.wait_for(
+                    response_future,
+                    timeout=300  # 5-minute timeout
                 )
-
-                try:
-                    result = await asyncio.wait_for(
-                        response_future,
-                        timeout=300  # 5-minute timeout
-                    )
-                    return result
-                except asyncio.TimeoutError:
-                    logger.error("Request timed out")
-                    return "", [(payload.get("query", ""), "Request timed out")]
+                return result
+            except asyncio.TimeoutError:
+                logger.error("Request timed out")
+                return "", [(payload.get("query", ""), "Request timed out")]
 
         except Exception as e:
             logger.error(f"Connection error: {e}")
