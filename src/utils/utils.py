@@ -13,21 +13,14 @@ def prepare_prompt(query: str, context: str) -> str:
     Returns:
         str: The formatted prompt string.
     """
-    initial_string = """You are provided with a Context: set of IOC (Indicators of \
-Compromise), which include file hashes, IP addresses, domains, and other threat-related \
-data, along with the content of .yar/.yara files that define malware signatures. 
-Use this context to answer the following Query. Please analyze the provided Context in \
-depth, and deliver a clear and concise answer based on the query.
+    initial_string = """You are provided with a Context: set of IOC (Indicators of Compromise), which include file hashes, IP addresses, domains, and other threat-related data, along with the content of .yar/.yara files that define malware signatures. 
+Use this context to answer the following Query. Please analyze the provided Context in depth, and deliver a clear and concise answer based on the query.
     
     Query: """
-
+    
     # Escaping special characters in query and context using repr()
-    prompt = (
-        f"{initial_string}{repr(query)[1:-1]}\n\n"
-        f"Context:\n{repr(context)[1:-1]}\n\n"
-        "Your response:"
-    )
-
+    prompt = r"" + initial_string + repr(query)[1:-1] + r"\n\nContext:\n" + repr(context)[1:-1] + r"\n\nYour response:"
+    
     return prompt
 
 
