@@ -11,3 +11,6 @@ numpy==2.0.2
 pandas==2.2.3
 fastapi
 websockets
+google-auth-oauthlib==1.2.1
+google-auth==2.35.0
+google-api-python-client==2.151.0
