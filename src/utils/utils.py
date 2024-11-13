@@ -2,28 +2,6 @@ from typing import List, Dict, Any
 
 from sentence_transformers import CrossEncoder
 
-def prepare_prompt(query: str, context: str) -> str:
-    """
-    Prepare a prompt by combining query and context with specific formatting.
-
-    Args:
-        query (str): The user's query string.
-        context (str): The context information to include in the prompt.
-
-    Returns:
-        str: The formatted prompt string.
-    """
-    initial_string = """You are provided with a Context: set of IOC (Indicators of Compromise), which include file hashes, IP addresses, domains, and other threat-related data, along with the content of .yar/.yara files that define malware signatures. 
-Use this context to answer the following Query. Please analyze the provided Context in depth, and deliver a clear and concise answer based on the query.
-    
-    Query: """
-    
-    # Escaping special characters in query and context using repr()
-    prompt = r"" + initial_string + repr(query)[1:-1] + r"\n\nContext:\n" + repr(context)[1:-1] + r"\n\nYour response:"
-    
-    return prompt
-
-
 def rerank_docs(
     query: str,
     top_5_results: List[Dict[str, str]]

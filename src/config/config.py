@@ -12,7 +12,7 @@ class Config:
     MAX_CHAT_HISTORY = 20
     GRADIO_SERVER_NAME = "0.0.0.0" 
     GRADIO_SERVER_PORT = int(7860)
-    WEBSOCKET_URI = "ws://rag-server:8000/ws"
+    WEBSOCKET_URI = "ws://rag-server:9000/ws"
     DATA_DIRECTORY = "data/"
     WEBSOCKET_TIMEOUT = 300  # 5 minutes
     HEARTBEAT_INTERVAL = 30  # 30 seconds
