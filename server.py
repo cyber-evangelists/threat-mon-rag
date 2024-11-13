@@ -7,21 +7,22 @@ from loguru import logger
 from typing import Dict, Any, List, Optional
 
 from src.config.config import Config
-from src.llm.groqwrapper import GroqWrapper
 from src.embedder.embedder import EmbeddingWrapper
 from src.qdrant.qdrant_utils import QdrantWrapper
 from src.parser.threatmon_parser import FileProcessor
-from src.utils.utils import prepare_prompt, rerank_docs
+from src.utils.utils import  rerank_docs
 from src.utils.connections_manager import ConnectionManager
+from src.chatbot.rag_chat_bot import RAGChatBot
 
 
 app = FastAPI()
 
 # Initialize all clients/wrappers
-groq_client = GroqWrapper()
 embedding_client = EmbeddingWrapper()
 qdrant_client = QdrantWrapper()
 file_processor = FileProcessor()
+
+chatbot = RAGChatBot()
 
 
 # Dictionary to hold WebSocket connections
@@ -110,13 +111,10 @@ async def handle_search(websocket: WebSocket, query: str) -> None:
         logger.info("Documents reranked")
 
         # Use top 2 documents as context
-        context = " ".join(reranked_top_5_list[:2])
-        processed_query = prepare_prompt(query, context)
+        context = reranked_top_5_list[:2]
 
-        # Generate response using Groq
         logger.info("Generating response from Groq")
-        # logger.info(processed_query)
-        response = groq_client.get_response(processed_query)
+        response = chatbot.chat(query, context)
 
         await websocket.send_json({
             "result": response
