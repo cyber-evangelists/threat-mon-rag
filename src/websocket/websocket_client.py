@@ -1,16 +1,15 @@
-# client.py
 import gradio as gr
 import websockets
 import json
 import asyncio
 from typing import Tuple, List, Optional, Dict, Any
+from loguru import logger
 
 from src.config.config import Config
-from loguru import logger
 
 
 class WebSocketClient:
-    def __init__(self, uri: str = "ws://rag-server:9000/ws/search"):
+    def __init__(self, uri: str = "ws://rag-server:8000/ws"):
         self.uri = uri
         self.websocket: Optional[websockets.WebSocketClientProtocol] = None
         self._connection_lock = asyncio.Lock()
@@ -166,6 +165,10 @@ class WebSocketClient:
                         return "", updated_history
                     elif action == "ingest_data":
                         return result, []
+                    elif action == "positive":
+                        return result, []
+                    elif action == "negative":
+                        return result, []
 
                 error = response_data.get("error")
                 if error:
@@ -174,4 +177,4 @@ class WebSocketClient:
         except Exception as e:
             logger.error(f"Communication error: {e}")
             return "", [(payload.get("query", ""), f"Communication error: {str(e)}")]
-        
+
