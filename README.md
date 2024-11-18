@@ -2,71 +2,56 @@
 
 ## Introduction
 
-This project implements a Retrieval-Augmented Generation (RAG) based system where users ask question related to the ThreatMon-Reports-IOC and it will response to the query
+This project implements a Retrieval-Augmented Generation (RAG) based system where users ask question related to the ThreatMon-Reports-IOC and it will response to the query. This project is completed using Web Sockets Fast API.
 
 ## Setting Up
 
 Follow these steps to set up and run the project:
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/cyber-evangelists/threat-mon-rag
    ```
 
-2. Navigate to the project directory:
-   ```
-   cd threat-mon-rag
-   ```
+2. Navigate to the project root directory:
 
-3. Download data from [this site](https://github.com/ThreatMon/ThreatMon-Reports-IOC) and add that folder into the same repository
-   
-
-4. Create a virtual environment:
    ```
-   python -m venv venv
+   threat-mon-rag
    ```
 
-5. Activate the virtual environment:
-   - On Windows:
-     ```
-     venv\Scripts\activate
-     ```
-   - On macOS and Linux:
-     ```
-     source venv/bin/activate
-     ```
+3. Make sure that the docker is installed on your system:
 
-6. Install the required packages:
    ```
-   pip install -r requirements.txt
+   docker --version
    ```
 
-7. Set up Qdrant:
-   a. Pull the Qdrant Docker image:
-      ```
-      docker pull qdrant/qdrant
-      ```
-   b. Run the Qdrant server:
-      ```
-      docker run -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant:v0.10.1
-      ```
+   If docker is not installed, run the following command:
 
-8. Add the data to the qdrant vector database
    ```
-   python src/add_data.py
+   sudo apt install docker
    ```
 
-9. Run the graio app:
+4. In the same directory, create a file name `.env` and add following API key
+
    ```
-   python app.py
+   GROQ_API_KEY=your_api_key
+   LANGCHAIN_API_KEY=your_langchain_api_key
+   LANGCHAIN_PROJECT=project_name
+   LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+   LANGCHAIN_TRACING_V2=true
    ```
 
-10. Enter Query and click on Search button, and the response will be shown below
+5. Build the docker environment::
 
-### Demo Video Link
+   ```
+   docker compose up --build
+   ```
 
- [Video Link ](https://www.loom.com/share/3c80678750e148a78e0d8016b281ac19?sid=480ca59b-bf06-4c26-848e-b8552fe43a54)
+6. Access the graio app by pasting this URL:
 
+   ```
+   http://localhost:7860/
+   ```
 
-
-
+7. There is button `Ingest data`, click on this button to first ingest data into qdrant vector database. Then Enter Query and click on Search button, and the response will be shown below.
