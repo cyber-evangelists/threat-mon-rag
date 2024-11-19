@@ -1,7 +1,5 @@
 # client.py
 import gradio as gr
-from typing import Optional
-import logging
 from typing import Tuple, List, Optional, Dict, Any
 
 from src.config.config import Config
@@ -29,10 +27,9 @@ async def search_click(msg, history):
 
 async def return_protection_message(msg, history):
 
-    new_message = (msg, "Your query appears a prompt injection. I would prefer Not to answer it.")
+    new_message = (msg, "Your query appears inappropriate. Do you have any other Query? I am here to help...")
     updated_history = history + [new_message]
     return "", updated_history
-
 
 
 
@@ -83,7 +80,7 @@ async def record_feedback(feedback, msg ) -> gr.Info:
 
 
 with gr.Blocks(
-    title="CAPEC RAG Chatbot",
+    title="Threat-Mon RAG Chatbot",
     theme=gr.themes.Soft(),
     css="""
         .gradio-container {
@@ -138,7 +135,7 @@ with gr.Blocks(
 
     # Header
     gr.Markdown(
-        "<div id='header'>CAPEC RAG Application</div>"
+        "<div id='header'>Threat-Mon RAG Application</div>"
     )
 
     # Chatbot Component

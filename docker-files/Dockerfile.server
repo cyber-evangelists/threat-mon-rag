@@ -9,9 +9,6 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-RUN pip install langchain
-RUN pip install langchain-groq
-
 COPY server.py .
 COPY src/ ./src/
 COPY data/ ./data/
