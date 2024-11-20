@@ -10,11 +10,6 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 COPY server.py .
-COPY src/ ./src/
-COPY data/ ./data/
-COPY .env .
-
-
 
 # Expose the port on which the FastAPI app will run
 EXPOSE 9000
