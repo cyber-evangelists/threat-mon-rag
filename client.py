@@ -12,25 +12,43 @@ from loguru import logger
 ws_client = WebSocketClient()
 guardrails_model = GuardRails()
 
-async def search_click(msg, history):
+
+async def search_click(msg: str, history: List[Tuple[str, str]]) -> Tuple[str, List[Tuple[str, str]], gr.Info]:
+
+    if not msg.strip():
+        logger.error(f"No input provided")
+        return "", history,  gr.Warning("Please enter a query.")
 
     response = int(guardrails_model.classify_prompt(msg))
 
     if response == 0:
-        return await ws_client.handle_request(
+        result =  await ws_client.handle_request(
             "search",
             {"query": msg, "history": history if history else []}
         )
+        if result[2] == "right":
+
+            styled_response = (f"<div style='direction: rtl; text-align: right; direction: right;'>{result[1]}</div>")
+        else:
+            styled_response = f"<div style='direction: ltr; text-align: left; direction: left;'>{result[1]}</div>"
+        
+        # Append the styled response to the chat history
+        updated_history = history + [(msg, styled_response)]
+
+
+        return result[0], updated_history, gr.Info("Query Processed")
+
     else:
         return await return_protection_message(msg, history)
 
 
 async def return_protection_message(msg, history):
 
-    new_message = (msg, "Your query appears inappropriate. Do you have any other Query? I am here to help...")
+    new_message = (msg, "Your query appears inappropriate. Do you have any other question?I am here to help.. ")
     updated_history = history + [new_message]
-    return "", updated_history
+    return "", updated_history, gr.Warning("Query is Inapproprite..")
 
+                    
 
 
 async def handle_ingest() -> None:
@@ -69,6 +87,10 @@ async def record_feedback(feedback, msg ) -> gr.Info:
     Returns:
         gr.Info: A Gradio info or warning message.
     """
+
+    if not msg.strip():
+        logger.error(f"No Comments provided")
+        return gr.Info("Please Enter Some Feed back First"), ""
 
     logger.info(feedback)
     logger.info(msg)
@@ -174,7 +196,7 @@ with gr.Blocks(
     send_button.click(
         fn=search_click,
         inputs=[msg, chatbot],
-        outputs=[msg, chatbot]
+         outputs=[msg, chatbot, status_box]
     )
     clear_button.click(
         fn=clear_chat,
