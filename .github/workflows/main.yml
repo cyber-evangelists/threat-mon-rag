@@ -1,4 +1,4 @@
-name: Threat mon Deployment
+name: Threat mon Deployment 
 
 on:
   push:
