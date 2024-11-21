@@ -4,16 +4,16 @@ FROM python:3.9-slim
 # Set the working directory
 WORKDIR /app
 
-# Copy the requirements file and install dependencies in cached mode
-COPY client-requirements.txt .
+# Copy and install only the requirements first to leverage Docker caching
+COPY client-requirements.txt ./client-requirements.txt
 
-# Update pip and install dependencies
-RUN pip install --upgrade pip && \
-    pip install -r client-requirements.txt
+# Install pip and dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r client-requirements.txt
 
-# Copy only the required files for the application
-COPY client.py .
-COPY src/ ./src/
+# Copy the application source code last to optimize build cache usage
+COPY client.py ./client.py
 
-# Run the application
+
+# Default command to run the application
 CMD ["python", "client.py"]
