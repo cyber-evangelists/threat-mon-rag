@@ -17,4 +17,8 @@ class Config:
     WEBSOCKET_TIMEOUT = 300  # 5 minutes
     HEARTBEAT_INTERVAL = 30  # 30 seconds
     MAX_CONNECTIONS = 100
+    COLLECTION_NAME = "threat-mon-v2"
+    RERANKING_MODEL_PATH = "cross-encoder/ms-marco-MiniLM-L-12-v2"
+    EMBEDDING_VERSION_NUMBER = "v1"
+    EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 

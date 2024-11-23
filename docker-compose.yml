@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: docker-files/Dockerfile.server
     ports:
-      - "9000:8000"
+      - "127.0.0.1:9000:8000"
     networks:
       - rag-network
     hostname: rag-server
@@ -16,18 +16,9 @@ services:
       - TOKENIZERS_PARALLELISM=false
     volumes:
       - ./src:/app/src
+      - ./data:/app/data
       - ./capec-dataset:/app/capec-dataset
       - ./.env:/app/.env
-    command:
-      [
-        "uvicorn",
-        "server:app",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "9000",
-        "--reload"
-      ]
 
   client:
     build:
@@ -36,7 +27,7 @@ services:
     networks:
       - rag-network
     ports:
-      - "7890:7860"
+      - "127.0.0.1:7890:7860"
     environment:
       - SERVER_HOST=rag-server
       - SERVER_PORT=8000
@@ -49,8 +40,8 @@ services:
   qdrant:
     image: qdrant/qdrant:v0.10.1
     ports:
-      - "6343:6333"
-      - "6344:6334"
+      - "127.0.0.1:6343:6333"
+      - "127.0.0.1:6344:6334"
     volumes:
       - qdrant_storage:/qdrant/storage
     networks:

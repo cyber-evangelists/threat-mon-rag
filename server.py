@@ -1,21 +1,24 @@
 # server.py
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from typing import List
-import asyncio
-import json
 from loguru import logger
+import json
+
 from typing import Dict, Any, List, Optional
 
 from src.config.config import Config
-from src.embedder.embedder import EmbeddingWrapper
+
+
 from src.qdrant.qdrant_utils import QdrantWrapper
+from src.embedder.embedder import EmbeddingWrapper
 from src.parser.threatmon_parser import FileProcessor
-from src.utils.utils import  rerank_docs
+
 from src.utils.connections_manager import ConnectionManager
 from src.chatbot.rag_chat_bot import RAGChatBot
-
+from src.reranker.re_ranking import RerankDocuments
 
 app = FastAPI()
+
+collection_name = Config.COLLECTION_NAME
 
 # Initialize all clients/wrappers
 embedding_client = EmbeddingWrapper()
@@ -23,6 +26,8 @@ qdrant_client = QdrantWrapper()
 file_processor = FileProcessor()
 
 chatbot = RAGChatBot()
+
+reranker = RerankDocuments()
 
 
 # Dictionary to hold WebSocket connections
@@ -32,19 +37,19 @@ manager = ConnectionManager()
 
 
 try:
-    logger.info("Ingesting Data")
 
-    data_directory = Config.DATA_DIRECTORY
-    processed_chunks = file_processor.process_all_files(data_directory)
-
+    logger.info("Starting Data Ingestion")
+    qdrant_client.delete_collection(collection_name=Config.COLLECTION_NAME)
+    logger.info("collection deleted...")
+    qdrant_client._create_collection_if_not_exists()
+    logger.info("Collection created....")
+    processed_chunks = file_processor.process_all_files(Config.DATA_DIRECTORY)
     qdrant_client.ingest_embeddings(processed_chunks)
 
     logger.info("Successfully ingested Data")
 
 except Exception as e:
     logger.error(f"Error in data ingestion: {str(e)}")
-
-
 
 
 async def handle_ingest(websocket: WebSocket, data: Any) -> None:
@@ -99,35 +104,32 @@ async def handle_search(websocket: WebSocket, query: str) -> None:
     try:
         logger.info(f"Processing search query")
 
-        # Generate embeddings
-        logger.info("Generating embeddings")
+        # filename = find_file_names(query, database_files)
+
         query_embeddings = embedding_client.generate_embeddings(query)
 
-        # Search in Qdrant
-        logger.info("Searching for top 5 results")
+
+        logger.info("Searching for top 5 results....")
         top_5_results = qdrant_client.search(query_embeddings, 5)
         logger.info("Retrieved top 5 results")
 
-        # Check if results are empty
         if not top_5_results:
             logger.warning("No results found in database")
             await websocket.send_json({
                 "result": "The database is empty. Please ingest some data first before searching."
             })
             return
+        
 
-        # Rerank documents
-        logger.info("Reranking documents")
-        reranked_docs = rerank_docs(query, top_5_results)
-        reranked_top_5_list = [item['content'][:1000] for item in reranked_docs]
-        logger.info("Documents reranked")
+        reranked_docs = reranker.rerank_docs(query, top_5_results)
+        reranked_top_5_list = [item['content'] for item in reranked_docs]
 
-        # Use top 2 documents as context
         context = reranked_top_5_list[:2]
 
+        # only top 2 documents are passing as a context
+        response, conversation_id  = chatbot.chat(query, context)
+
         logger.info("Generating response from Groq")
-        response, conversation_id = chatbot.chat(query, context)
-        logger.info(f"----{conversation_id}")
 
         await websocket.send_json({
             "result": response
