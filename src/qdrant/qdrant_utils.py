@@ -3,19 +3,21 @@ from typing import List, Dict, Any, Optional
 
 from loguru import logger
 from qdrant_client import QdrantClient
+from src.config.config import Config
 from qdrant_client.models import (
     Distance,
     VectorParams,
     PointStruct,
     FilterSelector,
-    CollectionInfo
+    CollectionInfo,
+    Filter
 )
 
 
 class QdrantWrapper:
     """A wrapper class for Qdrant vector database operations."""
 
-    def __init__(self, collection_name: str = "threadmon-reports-ioc") -> None:
+    def __init__(self, collection_name: str = Config.COLLECTION_NAME) -> None:
         """
         Initialize the QdrantWrapper with connection settings.
 
@@ -91,7 +93,7 @@ class QdrantWrapper:
             if self.client:
                 self.client.delete(
                     collection_name=self.collection_name,
-                    points_selector=FilterSelector(filter=None)
+                    points_selector=FilterSelector(filter=Filter())
                 )
                 logger.info(
                     f"Successfully cleared all vectors from collection: "
@@ -111,15 +113,23 @@ class QdrantWrapper:
         Raises:
             Exception: If ingestion fails.
         """
-        points = [
+        try:
+
+            points = [
             PointStruct(
-                id=i,
-                vector=doc["embeddings"],
-                payload={"text": doc["text"], "document": doc["document"]}
-            )
-            for i, doc in enumerate(docs)
-        ]
-        self.client.upsert(collection_name=self.collection_name, points=points)
+                    id=i,
+                    vector=doc["embeddings"],
+                    payload={"text": doc["text"], "metadata": doc["document"]}
+                )
+                for i, doc in enumerate(docs)
+            ]
+            self.client.upsert(collection_name=self.collection_name, points=points)
+
+        except Exception as E:
+            logger.error(f"Error in Data ingestion: {E}")
+
+    def delete_collection(self, collection_name:str) -> None:
+        self.client.delete_collection(collection_name)  
 
     def search(
         self,
@@ -162,7 +172,7 @@ class QdrantWrapper:
 
             return [
                 {
-                    "document": hit.payload["document"],
+                    "document": hit.payload["metadata"],
                     "content": hit.payload["text"]
                 }
                 for hit in search_result

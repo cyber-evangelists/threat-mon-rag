@@ -1,7 +1,7 @@
 gradio
-loguru
+loguru==0.7.2
 websockets
-python-dotenv
-transformers
-torch
+python-dotenv==1.0.1
+transformers==4.46.2
+torch==2.5.1
 python-bidi

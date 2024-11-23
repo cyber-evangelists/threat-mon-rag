@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union, TypedDict
 
 from src.embedder.embedder import EmbeddingWrapper
+from loguru import logger
 
 
 class ProcessedChunk(TypedDict):
@@ -130,6 +131,7 @@ class FileProcessor:
         Note:
             Resets the chunks list at the start of processing.
         """
+        logger.info("Reading all files")
         self.chunks = []  # Reset chunks list at the start of processing
         files = self.find_all_files(root_directory)
         
@@ -137,5 +139,8 @@ class FileProcessor:
         for file_type, file_list in files.items():
             for file_path in file_list:
                 self.process_file(file_path, file_type)
+
+        if self.chunks:
+            logger.info("All files processed..")
 
         return self.chunks

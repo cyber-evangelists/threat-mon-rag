@@ -8,8 +8,8 @@ WORKDIR /app
 COPY client-requirements.txt ./client-requirements.txt
 
 # Install pip and dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r client-requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --default-timeout=5000 -r client-requirements.txt
 
 # Copy the application source code last to optimize build cache usage
 COPY client.py ./client.py
