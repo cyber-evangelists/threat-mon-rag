@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project implements a Retrieval-Augmented Generation (RAG) based system where users ask question related to the ThreatMon-Reports-IOC and it will response to the query. This project is completed using Web Sockets Fast API.
+This project implements a Retrieval-Augmented Generation (RAG) based system where users ask question related to the ThreatMon-Reports-IOC and it will response to the query. This project is completed using Web Sockets Fast API. Testing
 
 ## Setting Up
 
