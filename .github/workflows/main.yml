@@ -7,8 +7,8 @@ on:
 
 jobs:
   deployment:
+    timeout-minutes: 120
     runs-on: ubuntu-latest
-    timeout-minutes: 360
 
     steps:
       - name: Checkout Repository
@@ -39,7 +39,6 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.DEV_KEY_PEM }}
-          timeout: 2h
           script: |
             echo "Stopping existing Docker Compose services..."
             cd /home/dev/threat-mon-rag/
@@ -48,6 +47,6 @@ jobs:
             echo "Enabling Docker BuildKit..."
             export DOCKER_BUILDKIT=1  
             echo "Starting Docker Compose services..."
-            echo "${{ secrets.DEV_PASS }}" | sudo -S docker-compose build 
+            echo "${{ secrets.DEV_PASS }}" | sudo -S docker-compose build --timeout 3600
             echo "${{ secrets.DEV_PASS }}" | sudo -S docker-compose up -d
             echo "Successfully deployed the application!"
