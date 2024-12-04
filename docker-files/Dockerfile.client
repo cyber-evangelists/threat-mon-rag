@@ -1,19 +1,29 @@
-# Use a Python 3.9 slim image as the base image
+# Stage 1: Build dependencies
+FROM python:3.9-slim AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Install pip and system dependencies required for building Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends gcc && \
+    pip install --no-cache-dir --upgrade pip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy and install dependencies
+COPY client-requirements.txt .
+RUN pip install --no-cache-dir --default-timeout=5000 -r client-requirements.txt
+
+# Stage 2: Final lightweight image
 FROM python:3.9-slim
 
 # Set the working directory
 WORKDIR /app
 
-# Copy and install only the requirements first to leverage Docker caching
-COPY client-requirements.txt ./client-requirements.txt
+# Copy installed dependencies from the build stage
+COPY --from=build /usr/local/lib/python3.9 /usr/local/lib/python3.9
 
-# Install pip and dependencies
-RUN pip install --upgrade pip && \
-    pip install --default-timeout=5000 -r client-requirements.txt
-
-# Copy the application source code last to optimize build cache usage
-COPY client.py ./client.py
-
+# Copy the application source code
+COPY client.py .
 
 # Default command to run the application
 CMD ["python", "client.py"]
